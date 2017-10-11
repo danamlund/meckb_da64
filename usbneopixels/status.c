@@ -10,6 +10,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 
 struct led_t {
   float r, g, b;
@@ -120,7 +121,7 @@ void getGradientTester() {
 
 
 void setWeather(struct led_t leds[], int led) {
-  // Denmark, Aarhus
+
   FILE *json = popen("curl -s 'http://www.dmi.dk/Data4DmiDk/getData?by_hour=true&id=45008000&country=DK'", "r");
   /* FILE *json = popen("curl -s file:///home/dthomsen/Downloads/dmi.json", "r"); */
   if (NULL == json) {
@@ -191,9 +192,8 @@ void setWeather(struct led_t leds[], int led) {
   
   setGradient3(&(leds[led+2]), rain,
                0, 0.0, 1.0, 0.0,
-               0.1, 1.0, 1.0, 0.0,
+               0.5, 1.0, 1.0, 0.0,
                4, 1.0, 0.0, 0.0);
-  
 }
 
 static unsigned long cpusLastActive[128] = {0};
@@ -363,6 +363,25 @@ void setSvnActivity(struct led_t leds[], int led) {
   // TODO: color based on number of added+removed lines in last 10 minutes
 }
 
+void setClock(struct led_t leds[], int ledHour, int ledMinute1, int ledMinute2) {
+  time_t now = time(NULL);
+  struct tm *now_tm = localtime(&now);
+  int hour = now_tm->tm_hour;
+  int workhour = hour % 8; // workhour is 0-7 from 8:00 to 16:00
+  leds[ledHour].r = (workhour & 4) > 0 ? 1.0f : 0.0f;
+  leds[ledHour].g = (workhour & 2) > 0 ? 1.0f : 0.0f;
+  leds[ledHour].b = (workhour & 1) > 0 ? 1.0f : 0.0f;
+
+  int min = now_tm->tm_min;
+
+  leds[ledMinute1].r = (min & 32) > 0 ? 1.0f : 0.0f;
+  leds[ledMinute1].g = (min & 16) > 0 ? 1.0f : 0.0f;
+  leds[ledMinute1].b = (min & 8) > 0 ? 1.0f : 0.0f;
+  leds[ledMinute2].r = (min & 4) > 0 ? 1.0f : 0.0f;
+  leds[ledMinute2].g = (min & 2) > 0 ? 1.0f : 0.0f;
+  leds[ledMinute2].b = (min & 1) > 0 ? 1.0f : 0.0f;
+}
+
 void printled(struct led_t led) {
   printf("(%.2f, %.2f, %.2f) (%d, %d) (%d, %d)\n",
          led.r, led.g, led.b, led.flickerSpeed, led.flickerI, 
@@ -496,17 +515,21 @@ int main(int argc, char *argv[]) {
   long time= 0;
   while (1) {
     if (time % 20 == 0) {
-      setJenkinsState(leds, 0, "curl -s http://jenkins1/jenkins-trunk/view/Light%20show/api/json");
-      setJenkinsState(leds, 1, "curl -s http://jenkins2/jenkins-master/view/1.Integration/api/json");
+      setJenkinsState(leds, 0, "curl -s http://jenkins1/jenkins1/view/Light%20show/api/json");
+      setJenkinsState(leds, 1, "curl -s http://jenkins2/jenkins2/view/1.Integration/api/json");
     }
 
     if (time % (60 * 10) == 0) {
       setWeather(leds, 13);
     }
 
-    setCpu(leds, 4);
-    setMem(leds, 9);
-    setSwap(leds, 10);
+    setCpu(leds, 7);
+    setMem(leds, 8);
+    setSwap(leds, 9);
+
+    if (time % 5 == 0) {
+      setClock(leds, 10, 11, 12); 
+    }
 
     setleds(fd, leds);
       
