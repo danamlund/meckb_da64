@@ -38,7 +38,10 @@ void basic_quickcalc(void) {
     quickcalc = 1;
     basic_start();
     loop();
-    txtpos[0] = '?';
+    // store result in variable a
+    txtpos[0] = 'a';
+    txtpos++;
+    txtpos[0] = '=';
     txtpos++;
 }
 
@@ -69,10 +72,22 @@ bool basic_register_code_user(uint8_t code) {
                 getln_ready = true;
 
                 if (quickcalc) {
+                    do {
+                        loop(); // run calc
+                    } while (!getln_isstarted());
+                    // then print the result which we stored in 'a'
+                    txtpos[0] = '?';
+                    txtpos++;
+                    txtpos[0] = 'a';
+                    txtpos++;
+                    txtpos[0] = NL;
+                    getln_ready = true;
+
                     SEND_STRING(" = ");
                     quickcalc = 2;
-                    loop();
-                    loop();
+                    do {
+                        loop(); // run calc
+                    } while (!getln_isstarted());
                     quickcalc = 0;
                     basic_running = false;
                     txtpos[0] = NL;
