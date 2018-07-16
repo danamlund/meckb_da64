@@ -1,0 +1,10 @@
+* installation
+ 1. Arduino 1.8.5 in sudo probably
+ 2. preferences -> "Additional Boards Manager URLs"
+ 3. http://digistump.com/package_digistump_index.json
+ 4. Boards -> Boards manager -> digispark
+ 5. Boards -> "Digispark (Default - 16.5Mhz)"
+** Errors
+ - If uploading fails then try with different usb female ports (Some
+   copy digisparks have wrong sizes so not all usb ports are
+   supported)

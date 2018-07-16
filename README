@@ -1,4 +1,0 @@
-A qmk keyboard firmware keyboard for my 64-key keyboard.
-
-usbneopixels is a computer scripts that sends serial data to a
-digispark that sends data to a neopixel strip with 16 rgb leds.

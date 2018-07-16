@@ -1,4 +1,4 @@
-/* Copyright 2017 REPLACE_WITH_YOUR_NAME
+/* Copyright 2018 dan amlund
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_USER_H
-#define CONFIG_USER_H
+#ifndef MINESWEEPER_QMK_H
+#define MINESWEEPER_QMK_H
 
-#include "../../config.h"
+#include QMK_KEYBOARD_H
 
-// place overrides here
+bool minesweeper_process_record_user(uint16_t keycode, keyrecord_t *record);
 
-/* #define BACKLIGHT_LEVELS 3 */
+void minesweeper_start(void);
 
 #endif

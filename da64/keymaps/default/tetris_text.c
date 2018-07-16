@@ -1,3 +1,18 @@
+/* Copyright 2017 Dan Amlund Thomsen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -293,10 +308,8 @@ static void init(void) {
     draw_board_line();
   }
   tetris_send_string("doooooooooob");
-  tetris_send_home();
-  for (int i = 0; i < 20; i++) {
-    tetris_send_up();
-  }
+  curx = 12;
+  cury = 20;
 }
 
 static int get_piece_min_y(char piece[7][7]) {
@@ -382,9 +395,6 @@ void tetris_start(uint8_t seed) {
     }
   }
 
-  curx = 0;
-  cury = 0;
-  
   clear_piece(piece);
 
   init();
@@ -435,8 +445,7 @@ int tetris_tick(int ms_since_previous_tick) {
 
       if (is_piece_hitting(board, piece, x, y)) {
         game_over = 1;
-        send_goto_xy(2, 10);
-        tetris_send_end();
+        send_goto_xy(12, 10);
         tetris_send_string(" game over");
         tetris_send_down();
         tetris_send_string(" score ");

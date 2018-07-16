@@ -1,0 +1,53 @@
+--- qmk_firmware/tmk_core/common/action.c	2018-07-06 12:01:00.315976768 +0200
++++ qmk_firmware_patched/tmk_core/common/action.c	2018-07-06 12:00:47.995846071 +0200
+@@ -687,21 +687,33 @@
+         process_record(record);
+         layer_off(get_oneshot_layer());
+     }
+ #endif
+ }
+ 
++__attribute__ ((weak))
++/* Called when sending a keycode press. Do not send code if false. */
++bool register_code_user(uint8_t code) {
++    return true;
++}
+ 
+-
++__attribute__ ((weak))
++/* Called when sending a keycode release. Do not send code if false. */
++bool unregister_code_user(uint8_t code) {
++    return true;
++}
+ 
+ /** \brief Utilities for actions. (FIXME: Needs better description)
+  *
+  * FIXME: Needs documentation.
+  */
+ void register_code(uint8_t code)
+ {
++    if (!register_code_user(code)) {
++        return;
++    }
+     if (code == KC_NO) {
+         return;
+     }
+ 
+ #ifdef LOCKING_SUPPORT_ENABLE
+     else if (KC_LOCKING_CAPS == code) {
+@@ -778,12 +790,15 @@
+ /** \brief Utilities for actions. (FIXME: Needs better description)
+  *
+  * FIXME: Needs documentation.
+  */
+ void unregister_code(uint8_t code)
+ {
++    if (!unregister_code_user(code)) {
++        return;
++    }
+     if (code == KC_NO) {
+         return;
+     }
+ 
+ #ifdef LOCKING_SUPPORT_ENABLE
+     else if (KC_LOCKING_CAPS == code) {
