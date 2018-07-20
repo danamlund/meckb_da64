@@ -18,6 +18,10 @@
 #include "tinybasic_qmk.h"
 #include "tetris_qmk.h"
 #include "minesweeper_qmk.h"
+#include "dynmacro.h"
+
+#undef DYNMACRO_BUFFER
+#define DYNMACRO_BUFFER 256
 
 #define PREVENT_STUCK_MODIFIERS
 
@@ -27,11 +31,10 @@ enum my_keycodes {
   BASIC,
   MINES,
   QUICKCALC,
-  DYNAMIC_MACRO_RANGE,
+  DYNMACRO_RECORD,
+  DYNMACRO_STOP,
+  DYNMACRO_REPLAY,
 };
-
-#define DYNAMIC_MACRO_SIZE 48
-#include "dynamic_macro.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Qwerty gui/alt/space/alt/gui
@@ -57,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 [1] = KEYMAP(
   KC_GRV,  KC_F1,     KC_F2,          KC_F3,        KC_F4,           KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL, \
-  XXXXXXX, QUICKCALC, DYN_REC_START1, DYN_REC_STOP, DYN_MACRO_PLAY1, TETRIS,  XXXXXXX, HELP   , KC_UP,   KC_INS,  KC_PSCR, KC_LSCR, KC_PAUS, XXXXXXX, \
+  XXXXXXX, QUICKCALC, DYNMACRO_RECORD, DYNMACRO_STOP, DYNMACRO_REPLAY, TETRIS,  XXXXXXX, HELP   , KC_UP,   KC_INS,  KC_PSCR, KC_LSCR, KC_PAUS, XXXXXXX, \
   XXXXXXX, XXXXXXX,   XXXXXXX,        XXXXXXX,      XXXXXXX,         XXXXXXX, XXXXXXX, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX, XXXXXXX,          XXXXXXX, \
   KC_LSFT, MO(2),     XXXXXXX,        XXXXXXX,      XXXXXXX,         BASIC,   XXXXXXX, MINES,   XXXXXXX, XXXXXXX, XXXXXXX,          KC_PGUP, KC_RSFT, \
   KC_LCTL, KC_TRNS,   KC_LGUI,        KC_LALT,              KC_SPACE,                           KC_RALT, KC_APP,           KC_HOME, KC_PGDN, KC_END \
@@ -78,10 +81,6 @@ void action_function(keyrecord_t *record, uint8_t id, uint8_t opt) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (!process_record_dynamic_macro(keycode, record)) {
-        return false;
-    }
-
     if (record->event.pressed) {
         if (keycode == TETRIS && !basic_is_running()) {
             tetris_qmk_start();
@@ -99,6 +98,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         if (keycode == QUICKCALC && !basic_is_running()) {
             basic_quickcalc();
+        }
+        if (keycode == DYNMACRO_RECORD) {
+            dynmacro_record();
+        }
+        if (keycode == DYNMACRO_STOP) {
+            dynmacro_stop();
+        }
+        if (keycode == DYNMACRO_REPLAY) {
+            dynmacro_replay();
         }
     }
     if (!tetris_process_record_user(keycode, record)) {
@@ -119,6 +127,9 @@ bool register_code_user(uint8_t code) {
     if (!basic_register_code_user(code)) {
         return false;
     }
+    if (!dynmacro_register_code_user(code)) {
+        return false;
+    }
     return true;
 }
 
@@ -132,6 +143,7 @@ void matrix_scan_user(void) {
     da_util_matrix_scan_user();
     tetris_matrix_scan_user();
     basic_matrix_scan_user();
+    dynmacro_matrix_scan_user();
 }
 
 bool is_layer_on(uint32_t state, uint8_t layer) {
