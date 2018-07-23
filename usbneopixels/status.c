@@ -23,7 +23,7 @@ struct led_t {
 float getGradient(float input, float thresholds[], float colors[], int len) {
   for (int i = 0; i < len; i++) {
     if (input <= thresholds[i]) {
-      if (i == 0) { 
+      if (i == 0) {
         return colors[0];
       } else {
         float p = (input - thresholds[i-1]) / (thresholds[i] - thresholds[i-1]);
@@ -33,14 +33,14 @@ float getGradient(float input, float thresholds[], float colors[], int len) {
   }
   return colors[len-1];
 }
-void setGradient(struct led_t *led, float input, float thresholds[], 
+void setGradient(struct led_t *led, float input, float thresholds[],
                  float reds[], float greens[], float blues[], int len) {
   led->r = getGradient(input, thresholds, reds, len);
   led->g = getGradient(input, thresholds, greens, len);
   led->b = getGradient(input, thresholds, blues, len);
 }
 void setGradient2(struct led_t *led, float input,
-                  float threshold1, float red1, float green1, float blue1, 
+                  float threshold1, float red1, float green1, float blue1,
                   float threshold2, float red2, float green2, float blue2) {
   float thresholds[] = { threshold1, threshold2 };
   float reds[] = { red1, red2 };
@@ -49,7 +49,7 @@ void setGradient2(struct led_t *led, float input,
   setGradient(led, input, thresholds, reds, greens, blues, 2);
 }
 void setGradient3(struct led_t *led, float input,
-                  float threshold1, float red1, float green1, float blue1, 
+                  float threshold1, float red1, float green1, float blue1,
                   float threshold2, float red2, float green2, float blue2,
                   float threshold3, float red3, float green3, float blue3) {
   float thresholds[] = { threshold1, threshold2, threshold3 };
@@ -59,7 +59,7 @@ void setGradient3(struct led_t *led, float input,
   setGradient(led, input, thresholds, reds, greens, blues, 3);
 }
 void setGradient9(struct led_t *led, float input,
-                  float threshold1, float red1, float green1, float blue1, 
+                  float threshold1, float red1, float green1, float blue1,
                   float threshold2, float red2, float green2, float blue2,
                   float threshold3, float red3, float green3, float blue3,
                   float threshold4, float red4, float green4, float blue4,
@@ -68,7 +68,7 @@ void setGradient9(struct led_t *led, float input,
                   float threshold7, float red7, float green7, float blue7,
                   float threshold8, float red8, float green8, float blue8,
                   float threshold9, float red9, float green9, float blue9) {
-  float thresholds[] = { threshold1, threshold2, threshold3, threshold4, 
+  float thresholds[] = { threshold1, threshold2, threshold3, threshold4,
                          threshold5, threshold6, threshold7, threshold8,
                          threshold9 };
   float reds[] = { red1, red2, red3, red4, red5, red6, red7, red8, red9 };
@@ -78,7 +78,7 @@ void setGradient9(struct led_t *led, float input,
 }
 
 void setGradient2Test(const char *msg, float input,
-                      float threshold1, float red1, float green1, float blue1, 
+                      float threshold1, float red1, float green1, float blue1,
                       float threshold2, float red2, float green2, float blue2,
                       float outRed, float outGreen, float outBlue) {
   struct led_t led;
@@ -88,7 +88,7 @@ void setGradient2Test(const char *msg, float input,
   if (led.r != outRed || led.g != outGreen || led.b != outBlue) {
     fprintf(stderr, "%s: setGradient2Test(%.2f, %.2f, (%.2f,%.2f,%.2f)"
             ", %.2f, (%.2f,%.2f,%.2f)) = (%.2f,%.2f,%.2f) (expected: (%.2f,%.2f,%.2f))\n",
-            msg, 
+            msg,
             input, threshold1, red1, green1, blue1,
             threshold2, red2, green2, blue2,
             led.r, led.g, led.b,
@@ -189,7 +189,7 @@ void setWeather(struct led_t leds[], int led) {
                5, 0.0, 1.0, 0.0,
                10, 1.0, 1.0, 0.0,
                25, 1.0, 0.0, 0.0);
-  
+
   setGradient3(&(leds[led+2]), rain,
                0, 0.0, 1.0, 0.0,
                0.5, 1.0, 1.0, 0.0,
@@ -384,7 +384,7 @@ void setClock(struct led_t leds[], int ledHour, int ledMinute1, int ledMinute2) 
 
 void printled(struct led_t led) {
   printf("(%.2f, %.2f, %.2f) (%d, %d) (%d, %d)\n",
-         led.r, led.g, led.b, led.flickerSpeed, led.flickerI, 
+         led.r, led.g, led.b, led.flickerSpeed, led.flickerI,
          led.dimmingSpeed, led.dimmingI);
 }
 
@@ -423,17 +423,17 @@ void setleds(int fd, struct led_t leds[]) {
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
-                             
+
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
-                             
+
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
-                             
+
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
                              0x00, 0x00, 0x00,
@@ -479,23 +479,33 @@ void setleds(int fd, struct led_t leds[]) {
   setleds_kb(fd, leddata);
 }
 
+int openSerial() {
+  struct termios term_opt;
+
+  /* int fd = open("/dev/ttyUSB0", O_RDWR); */
+  int fd = open("/dev/ttyACM0", O_RDWR);
+  if(fd >= 0) {
+    tcgetattr(fd, &term_opt);
+    cfmakeraw(&term_opt);
+    /* cfsetospeed(&term_opt, B38400); // B57600); */
+    cfsetospeed(&term_opt, B19200); // B57600);
+    tcsetattr(fd, TCSAFLUSH, &term_opt);
+  }
+  return fd;
+}
+
+void closeSerial(int fd) {
+  if (fd >= 0) {
+    close(fd);
+  }
+}
+
 int main(int argc, char *argv[]) {
   struct termios term_opt;
 
   getGradientTester();
 
-  /* Setup the serial port */
-  /* int fd = open("/dev/ttyUSB0", O_RDWR); */
-  int fd = open("/dev/ttyACM0", O_RDWR);
-  if(fd < 0) {
-    perror("argh");
-    exit(1);
-  }
-  tcgetattr(fd, &term_opt);
-  cfmakeraw(&term_opt);
-  /* cfsetospeed(&term_opt, B38400); // B57600); */
-  cfsetospeed(&term_opt, B19200); // B57600);
-  tcsetattr(fd, TCSAFLUSH, &term_opt);
+  int fd = openSerial();
   struct led_t leds[16];
 
   for (int i = 0; i < 16; i++) {
@@ -507,6 +517,7 @@ int main(int argc, char *argv[]) {
   }
 
   setleds(fd, leds); // turn off everything
+  closeSerial(fd);
   usleep(50000);
 
   /* setWeather(leds, 0); */
@@ -514,25 +525,29 @@ int main(int argc, char *argv[]) {
 
   long time= 0;
   while (1) {
-    if (time % 20 == 0) {
-      setJenkinsState(leds, 0, "curl -s http://jenkins1/jenkins1/view/Light%20show/api/json");
-      setJenkinsState(leds, 1, "curl -s http://jenkins2/jenkins2/view/1.Integration/api/json");
+    fd = openSerial();
+    if (fd >= 0) {
+      if (time % 20 == 0) {
+        setJenkinsState(leds, 0, "curl -s http://jenkins1/jenkins1/view/Light%20show/api/json");
+        setJenkinsState(leds, 1, "curl -s http://jenkins2/jenkins2/view/1.Integration/api/json");
+      }
+
+      if (time % (60 * 10) == 0) {
+        setWeather(leds, 13);
+      }
+
+      setCpu(leds, 7);
+      setMem(leds, 8);
+      setSwap(leds, 9);
+
+      if (time % 5 == 0) {
+        setClock(leds, 10, 11, 12);
+      }
+
+      setleds(fd, leds);
+
     }
-
-    if (time % (60 * 10) == 0) {
-      setWeather(leds, 13);
-    }
-
-    setCpu(leds, 7);
-    setMem(leds, 8);
-    setSwap(leds, 9);
-
-    if (time % 5 == 0) {
-      setClock(leds, 10, 11, 12); 
-    }
-
-    setleds(fd, leds);
-      
+    closeSerial(fd);
     sleep(1);
     time++;
   }
