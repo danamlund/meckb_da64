@@ -24,6 +24,7 @@ static bool dobreak = false;
 static bool getln_started = false;
 static bool getln_ready = false;
 static uint8_t quickcalc = 0;
+static uint8_t no_repeat_code = 0;
 
 void basic_start(void) {
     if (!basic_inited) {
@@ -117,6 +118,7 @@ bool basic_register_code_user(uint8_t code) {
                 if (c != 0) {
                     txtpos[0] = c;
                     txtpos++;
+                    no_repeat_code = code;
                     return true;
                 } else {
                     return false;
@@ -134,6 +136,13 @@ bool basic_register_code_user(uint8_t code) {
 
 void basic_matrix_scan_user(void) {
     if (basic_running) {
+        if (no_repeat_code != 0) {
+            // keyboard cannot detect auto-repeats because that is OS-defined.
+            // So we disable auto-repeat by immediately basic keypresses.
+            unregister_code(no_repeat_code);
+            no_repeat_code = 0;
+        }
+
         if (timer_elapsed(timer) > 50) {
             timer = timer_read();
             // execute 1 instruction every 50ms
