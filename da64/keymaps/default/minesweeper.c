@@ -103,6 +103,18 @@ static void draw(void) {
     send_up();
 }
 
+static uint8_t number(uint8_t x, uint8_t y) {
+    uint8_t n = 0;
+    for (int xadd = -1; xadd <= 1; xadd++) {
+        for (int yadd = -1; yadd <= 1; yadd++) {
+            if (is_mine(x + xadd, y + yadd)) {
+                n++;
+            }
+        }
+    }
+    return n;
+}
+
 static uint8_t xorshift8(uint8_t seed) {
     if (seed == 0) {
         seed = 1;
@@ -137,6 +149,16 @@ void start(uint8_t seed) {
 
     draw();
     send_insert();
+
+    for (int y = GRID_SIZE - 1; y >= 0; y--) {
+        for (int x = 0; x < GRID_SIZE; x++) {
+            if (number(x, y) == 0) {
+                goto_xy(x, y);
+                get_press();
+                return;
+            }
+        }
+    }
 }
 
 void quit_prematurely(void) {
@@ -166,18 +188,6 @@ void get_right(void) {
         curx++;
         send_right();
     }
-}
-
-static uint8_t number(uint8_t x, uint8_t y) {
-    uint8_t n = 0;
-    for (int xadd = -1; xadd <= 1; xadd++) {
-        for (int yadd = -1; yadd <= 1; yadd++) {
-            if (is_mine(x + xadd, y + yadd)) {
-                n++;
-            }
-        }
-    }
-    return n;
 }
 
 static bool clear_square(uint8_t x, uint8_t y) {
