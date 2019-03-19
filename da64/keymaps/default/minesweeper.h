@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 // call
-void start(uint8_t seed);
+void start(uint16_t seed);
 void quit_prematurely(void);
 
 void get_up(void);
@@ -30,6 +30,7 @@ void get_down(void);
 void get_right(void);
 bool get_press(void);
 void get_flag_press(void);
+void get_print_mines_left(void);
 
 // implement
 void send(char c);
@@ -41,5 +42,7 @@ void send_up(void);
 void send_left(void);
 void send_down(void);
 void send_right(void);
+
+uint32_t timer_read32(void);
 
 #endif

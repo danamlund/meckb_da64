@@ -38,7 +38,7 @@ void tetris_send_newline(void);
 int tetris_get_keypress(void);
 
 //// to call
-void tetris_start(uint8_t seed);
+void tetris_start(uint16_t seed);
 // returns 0 when game is over
 int tetris_tick(int ms_since_previous_tick);
 

@@ -376,7 +376,7 @@ static uint8_t myrandom(uint8_t seed) {
 
 static char piece[7][7];
 static char board[20][10];
-static uint8_t r;
+static uint16_t r;
 static int score;
 static int x;
 static int y;
@@ -388,7 +388,7 @@ static int down_delay;
 static int first_run;
 static int game_over;
 
-void tetris_start(uint8_t seed) {
+void tetris_start(uint16_t seed) {
   for (int y = 0; y < 20; y++) {
     for (int x = 0; x < 10; x++) {
       board[y][x] = 0;

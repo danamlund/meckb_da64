@@ -35,6 +35,7 @@ bool minesweeper_process_record_user(uint16_t keycode, keyrecord_t *record) {
             case KC_RIGHT: get_right(); break;
             case KC_D: if (!get_press()) { minesweeper_quit(); } break;
             case KC_F: get_flag_press(); break;
+            case KC_L: get_print_mines_left(); break;
             case KC_ESC: quit_prematurely(); minesweeper_quit(); break;
             }
         }

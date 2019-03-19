@@ -24,10 +24,9 @@
 #define GRID_SIZE 16
 #define MINES 40
 
-// Expert
-/* #define GRID_SIZE 24 */
+// Expert 30x16_99 (~= 22x22_99)
+/* #define GRID_SIZE 22 */
 /* #define MINES 99 */
-
 
 static int curx = 0;
 static int cury = 0;
@@ -35,6 +34,8 @@ static int cury = 0;
 static uint8_t grid_mines[GRID_SIZE * GRID_SIZE / 8];
 static uint8_t grid_cleared[GRID_SIZE * GRID_SIZE / 8];
 static uint8_t grid_flagged[GRID_SIZE * GRID_SIZE / 8];
+
+static uint32_t start_time = 0;
 
 static void goto_xy(int x, int y) {
     while (curx < x) {
@@ -115,16 +116,16 @@ static uint8_t number(uint8_t x, uint8_t y) {
     return n;
 }
 
-static uint8_t xorshift8(uint8_t seed) {
-    if (seed == 0) {
+static uint16_t xorshift16(uint16_t seed) {
+    if (seed == 0)
         seed = 1;
-    }
-    seed ^= (seed << 7);
-    seed ^= (seed >> 5);
-    return seed ^= (seed << 3);
+    seed ^= seed << 7;
+    seed ^= seed >> 9;
+    seed ^= seed << 8;
+    return seed;
 }
 
-void start(uint8_t seed) {
+void start(uint16_t seed) {
     for (int y = 0; y < GRID_SIZE; y++) {
         for (int x = 0; x < GRID_SIZE; x++) {
             set_mine(x, y, false);
@@ -136,9 +137,9 @@ void start(uint8_t seed) {
     int attempts = 255;
     for (int i = 0; i < MINES; i++) {
         while (attempts-- > 0) {
-            seed = xorshift8(seed);
+            seed = xorshift16(seed);
             uint8_t x = seed % GRID_SIZE;
-            seed = xorshift8(seed);
+            seed = xorshift16(seed);
             uint8_t y = seed % GRID_SIZE;
             if (!is_mine(x, y)) {
                 set_mine(x, y, true);
@@ -155,6 +156,7 @@ void start(uint8_t seed) {
             if (number(x, y) == 0) {
                 goto_xy(x, y);
                 get_press();
+                start_time = timer_read32();
                 return;
             }
         }
@@ -234,13 +236,14 @@ static void clear_squares_auto(void) {
     }
 }
 
-static void end_game(const char *msg) {
-    quit_prematurely();
+static void print_string(const char *msg) {
     goto_xy(GRID_SIZE, GRID_SIZE / 2);
     send(' ');
+    curx++;
     while (msg[0] != '\0') {
         send(msg[0]);
         msg++;
+        curx++;
     }
 }
 
@@ -250,7 +253,8 @@ bool get_press(void) {
     }
 
     if (is_mine(curx, cury)) {
-        end_game("BOOM!");
+        send('X');
+        quit_prematurely();
         return false;
     }
 
@@ -268,7 +272,18 @@ bool get_press(void) {
         }
     }
 
-    end_game("WIN!");
+    print_string("WIN!   "); // extra spaces to clear "left: xx"
+    send_left();
+    send_left();
+    quit_prematurely();
+    start_time = (timer_read32() - start_time) / 1000;
+    send('s');
+    send_left();
+    while (start_time > 0) {
+        send('0' + (start_time % 10));
+        send_left();
+        start_time = start_time / 10;
+    }
     return false;
 }
 
@@ -284,4 +299,30 @@ void get_flag_press(void) {
         send('*');
     }
     send_left();
+}
+
+
+void get_print_mines_left(void) {
+    uint8_t oldx = curx;
+    uint8_t oldy = cury;
+
+    int8_t mines_left = MINES;
+    for (int y = 0; y < GRID_SIZE; y++) {
+        for (int x = 0; x < GRID_SIZE; x++) {
+            if (is_flagged(x, y)) {
+                mines_left--;
+            }
+        }
+    }
+
+    print_string("left: ");
+    if (mines_left < 0) {
+        send('-');
+        send(' ');
+    } else {
+        send('0' + (mines_left / 10));
+        send('0' + (mines_left % 10));
+    }
+    curx += 2;
+    goto_xy(oldx, oldy);
 }
