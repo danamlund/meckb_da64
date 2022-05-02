@@ -37,6 +37,15 @@ static uint8_t grid_flagged[GRID_SIZE * GRID_SIZE / 8];
 
 static uint32_t start_time = 0;
 
+static uint16_t xorshift16(uint16_t seed) {
+    if (seed == 0)
+        seed = 1;
+    seed ^= seed << 7;
+    seed ^= seed >> 9;
+    seed ^= seed << 8;
+    return seed;
+}
+
 static void goto_xy(int x, int y) {
     while (curx < x) {
         send_right();
@@ -114,15 +123,6 @@ static uint8_t number(uint8_t x, uint8_t y) {
         }
     }
     return n;
-}
-
-static uint16_t xorshift16(uint16_t seed) {
-    if (seed == 0)
-        seed = 1;
-    seed ^= seed << 7;
-    seed ^= seed >> 9;
-    seed ^= seed << 8;
-    return seed;
 }
 
 void start(uint16_t seed) {

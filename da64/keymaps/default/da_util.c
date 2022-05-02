@@ -80,9 +80,13 @@ void send_keycode_shift(uint16_t keycode) {
     send_keycode(LSFT(keycode));
 }
 
+// from quantum.c
+#define PGM_LOADBIT(mem, pos) ((pgm_read_byte(&((mem)[(pos) / 8])) >> ((pos) % 8)) & 0x01)
+
 uint16_t ascii_to_keycode(char ascii_code) {
     uint8_t keycode = pgm_read_byte(&ascii_to_keycode_lut[(uint8_t)ascii_code]);
-    if (pgm_read_byte(&ascii_to_shift_lut[(uint8_t)ascii_code])) {
+    bool is_shifted = PGM_LOADBIT(ascii_to_shift_lut, (uint8_t)ascii_code);
+    if (is_shifted) {
         return LSFT(keycode);
     } else{
         return keycode;

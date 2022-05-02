@@ -19,6 +19,7 @@
 #include "tetris_qmk.h"
 #include "minesweeper_qmk.h"
 #include "dynmacro.h"
+#include "sudoku_qmk.h"
 
 #undef DYNMACRO_BUFFER
 #define DYNMACRO_BUFFER 256
@@ -30,6 +31,7 @@ enum my_keycodes {
   TETRIS,
   BASIC,
   MINES,
+  SUDOKU,
   QUICKCALC,
   DYNMACRO_RECORD,
   DYNMACRO_STOP,
@@ -61,14 +63,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [1] = KEYMAP(
   KC_GRV,  KC_F1,     KC_F2,          KC_F3,        KC_F4,           KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL, \
   XXXXXXX, QUICKCALC, DYNMACRO_RECORD, DYNMACRO_STOP, DYNMACRO_REPLAY, TETRIS,  XXXXXXX, HELP   , KC_UP,   KC_INS,  KC_PSCR, KC_LSCR, KC_PAUS, XXXXXXX, \
-  XXXXXXX, XXXXXXX,   XXXXXXX,        XXXXXXX,      XXXXXXX,         XXXXXXX, XXXXXXX, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX, XXXXXXX,          XXXXXXX, \
+  XXXXXXX, XXXXXXX,   SUDOKU,        XXXXXXX,      XXXXXXX,         XXXXXXX, XXXXXXX, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX, XXXXXXX,          XXXXXXX, \
   KC_LSFT, MO(2),     XXXXXXX,        XXXXXXX,      XXXXXXX,         BASIC,   XXXXXXX, MINES,   XXXXXXX, XXXXXXX, XXXXXXX,          KC_PGUP, KC_RSFT, \
   KC_LCTL, KC_TRNS,   KC_LGUI,        KC_LALT,              KC_SPACE,                           KC_RALT, KC_APP,           KC_HOME, KC_PGDN, KC_END \
 ),
 [2] = KEYMAP(
   KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL, \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TETRIS,  XXXXXXX, XXXXXXX, KC_PGUP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_HOME, KC_PGDN, KC_END,  XXXXXXX, XXXXXXX,          XXXXXXX, \
+  XXXXXXX, XXXXXXX, SUDOKU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_HOME, KC_PGDN, KC_END,  XXXXXXX, XXXXXXX,          XXXXXXX, \
   KC_LSFT, KC_TRNS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          KC_PGUP, KC_RSFT, \
   KC_LCTL, KC_TRNS, KC_LGUI, KC_LALT,        KC_SPACE,                    KC_RALT, KC_APP,           KC_HOME, KC_PGDN, KC_END \
 )
@@ -108,6 +110,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (keycode == DYNMACRO_REPLAY) {
             dynmacro_replay();
         }
+        if (keycode == SUDOKU && !basic_is_running()) {
+            sudoku_start();
+            layer_clear();
+            //return false;
+        }
     }
     if (!tetris_process_record_user(keycode, record)) {
         return false;
@@ -128,6 +135,9 @@ bool register_code_user(uint8_t code) {
         return false;
     }
     if (!dynmacro_register_code_user(code)) {
+        return false;
+    }
+    if (!sudoku_register_code_user(code)) {
         return false;
     }
     return true;

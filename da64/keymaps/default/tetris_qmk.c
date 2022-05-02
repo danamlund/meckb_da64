@@ -42,7 +42,7 @@ bool tetris_process_record_user(uint16_t keycode, keyrecord_t *record) {
             case KC_LEFT: tetris_keypress = 2; break;
             case KC_DOWN: tetris_keypress = 3; break;
             case KC_RIGHT: tetris_keypress = 4; break;
-            case KC_ESC: tetris_running = false; return false; // ESC quits tetris
+            case KC_ESC: tetris_stop(); tetris_running = false; layer_clear(); break;
             }
         }
         return false;
@@ -58,6 +58,7 @@ void tetris_matrix_scan_user(void) {
             if (!tetris_tick(100)) {
                 // game over
                 tetris_running = false;
+                layer_clear();
             }
         }
     }
@@ -91,6 +92,10 @@ void tetris_send_string(const char *s) {
 
 void tetris_send_newline(void) {
     send_keycode(KC_ENT);
+}
+
+void tetris_send_insert(void) {
+    send_keycode(KC_INS);
 }
 
 int tetris_get_keypress(void) {

@@ -48,5 +48,4 @@ char keycode_to_ascii(uint16_t keycode);
 // debug
 void send_i(int i);
 void send_integer(uint16_t i);
-
 #endif

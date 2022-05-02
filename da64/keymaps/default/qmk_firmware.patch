@@ -1,9 +1,24 @@
---- qmk_firmware/tmk_core/common/action.c	2018-07-06 12:01:00.315976768 +0200
-+++ qmk_firmware_patched/tmk_core/common/action.c	2018-07-06 12:00:47.995846071 +0200
-@@ -687,21 +687,33 @@
-         process_record(record);
-         layer_off(get_oneshot_layer());
-     }
+diff --git a/quantum/keymap_common.c b/quantum/keymap_common.c
+index 570d4798d..33d3ecda9 100644
+--- a/quantum/keymap_common.c
++++ b/quantum/keymap_common.c
+@@ -166,9 +166,9 @@ action_t action_for_key(uint8_t layer, keypos_t key) {
+     return action;
+ }
+ 
+-__attribute__((weak)) const uint16_t PROGMEM fn_actions[] = {
++//__attribute__((weak)) const uint16_t PROGMEM fn_actions[] = {
+ 
+-};
++//};
+ 
+ /* Macro */
+ __attribute__((weak)) const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) { return MACRO_NONE; }
+diff --git a/tmk_core/common/action.c b/tmk_core/common/action.c
+index ee9aa0df7..6701dc1c4 100644
+--- a/tmk_core/common/action.c
++++ b/tmk_core/common/action.c
+@@ -736,11 +736,26 @@ void process_action(keyrecord_t *record, action_t action) {
  #endif
  }
  
@@ -12,42 +27,36 @@
 +bool register_code_user(uint8_t code) {
 +    return true;
 +}
- 
--
++
 +__attribute__ ((weak))
 +/* Called when sending a keycode release. Do not send code if false. */
 +bool unregister_code_user(uint8_t code) {
 +    return true;
 +}
- 
++
  /** \brief Utilities for actions. (FIXME: Needs better description)
   *
   * FIXME: Needs documentation.
   */
- void register_code(uint8_t code)
- {
+ void register_code(uint8_t code) {
 +    if (!register_code_user(code)) {
 +        return;
 +    }
      if (code == KC_NO) {
          return;
      }
- 
- #ifdef LOCKING_SUPPORT_ENABLE
-     else if (KC_LOCKING_CAPS == code) {
-@@ -778,12 +790,15 @@
- /** \brief Utilities for actions. (FIXME: Needs better description)
-  *
+@@ -837,6 +852,9 @@ void register_code(uint8_t code) {
   * FIXME: Needs documentation.
   */
- void unregister_code(uint8_t code)
- {
+ void unregister_code(uint8_t code) {
 +    if (!unregister_code_user(code)) {
 +        return;
 +    }
      if (code == KC_NO) {
          return;
      }
- 
- #ifdef LOCKING_SUPPORT_ENABLE
-     else if (KC_LOCKING_CAPS == code) {
+@@ -1100,3 +1118,4 @@ void debug_action(action_t action) {
+     }
+     dprintf("[%X:%02X]", action.kind.param >> 8, action.kind.param & 0xff);
+ }
++

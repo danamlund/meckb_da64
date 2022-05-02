@@ -27,6 +27,10 @@ static void minesweeper_quit(void) {
 
 bool minesweeper_process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (minesweeper_running) {
+        if (keycodes_buffer_is_sending()) {
+            // dont accept input while digging a bunch a mines to avoid misclicks
+            return true;
+        }
         if (record->event.pressed) {
             switch (keycode) {
             case KC_UP: get_up(); break;
